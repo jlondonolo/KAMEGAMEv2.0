@@ -1,74 +1,74 @@
-<<<<<<< HEAD
 # KAMEGAMEv2.0
-=======
-# Getting Started with Create React App
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+¡Bienvenidos a **KAMEGAME**! 🎮✨  
+Este es un proyecto de desarrollo web de software creado por estudiantes universitarios apasionados por la tecnología y los videojuegos. Nuestro objetivo es diseñar y desarrollar una plataforma innovadora que revolucione la forma en que los jugadores interactúan con sus juegos y comunidades.
 
-## Available Scripts
+## 📌 Características principales
 
-In the project directory, you can run:
+- **Gestión de Colecciones de Juegos**:  
+  Los usuarios podrán registrar, organizar y compartir sus colecciones de videojuegos.
 
-### `npm start`
+- **Sistema de Reseñas y Valoraciones**:  
+  Permite a los usuarios reseñar sus juegos favoritos y calificar su experiencia.
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+- **Modo Multijugador y Retos Semanales**:  
+  Funcionalidad para conectar jugadores y crear desafíos en línea.
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+- **Foros de Discusión**:  
+  Espacios interactivos donde los usuarios pueden compartir consejos, noticias y estrategias.
 
-### `npm test`
+- **Gamificación**:  
+  Sistema de logros y recompensas para incentivar la participación activa de los usuarios.
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+## 🚀 Objetivo del Proyecto
 
-### `npm run build`
+Diseñar una plataforma que combine las mejores características de gestión de juegos con una comunidad vibrante, ofreciendo una experiencia única a los usuarios. Este proyecto también sirve como una oportunidad para aprender y aplicar habilidades de desarrollo web, diseño de experiencia de usuario (UX/UI) y trabajo en equipo.
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+## 💻 Tecnologías Utilizadas
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+- **Frontend**: HTML5, CSS3, JavaScript, React.
+- **Backend**: Node.js, Express.
+- **Base de Datos**: MongoDB.
+- **Control de Versiones**: Git y GitHub.
+- **Diseño y Prototipado**: Figma.
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+## 🛠️ Funcionalidades en Desarrollo
 
-### `npm run eject`
+1. Sistema de autenticación seguro.
+2. Creación de perfiles personalizados para cada usuario.
+3. Implementación de una API para datos en tiempo real.
+4. Algoritmos de recomendación basados en preferencias del usuario.
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+## 👨‍💻 Equipo de Desarrollo
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+- [Santiago Molina Velásquez] - **Líder de proyecto**
+- [Nombre del estudiante 2] - **Desarrollador Backend**
+- [Nombre del estudiante 3] - **Desarrollador Frontend**
+- [Nombre del estudiante 4] - **Diseñador UX/UI**
+- [Nombre del estudiante 5] - **Tester**
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+## 📅 Cronograma
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+| Fase              | Descripción                        | Fecha de Entrega |
+|--------------------|------------------------------------|------------------|
+| Investigación      | Análisis de requisitos y diseño.  | DD/MM/AAAA       |
+| Desarrollo         | Codificación y pruebas iniciales. | DD/MM/AAAA       |
+| Lanzamiento Beta   | Revisión y pruebas finales.       | DD/MM/AAAA       |
+| Presentación Final | Entrega del proyecto.             | DD/MM/AAAA       |
 
-## Learn More
+## 🤝 Contribuciones
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+Este proyecto es un trabajo colaborativo. Si deseas contribuir, por favor, sigue los pasos:
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+1. Realiza un fork del repositorio.
+2. Crea una nueva rama (`git checkout -b feature/nueva-funcionalidad`).
+3. Realiza los cambios necesarios y haz un commit (`git commit -m 'Agrega nueva funcionalidad'`).
+4. Envía tus cambios mediante un pull request.
 
-### Code Splitting
+## 📝 Licencia
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+Este proyecto está bajo la licencia MIT. Consulta el archivo [LICENSE](LICENSE) para más detalles.
 
-### Analyzing the Bundle Size
+---
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
->>>>>>> 1f12f95 (Initialize project using Create React App)
+¡Gracias por visitar nuestro proyecto! No dudes en contribuir o dejar tus comentarios. 💬
