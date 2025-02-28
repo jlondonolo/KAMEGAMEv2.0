@@ -1,12 +1,33 @@
 import { useState, useEffect, useCallback } from 'react';
 
 export const useStore = () => {
-    const [cards, setCards] = useState([]);
-    const [filteredCards, setFilteredCards] = useState([]);
+    const [cards, setCards] = useState([]); // Cartas originales del JSON
+    const [filteredCards, setFilteredCards] = useState([]); // Cartas filtradas para la tienda
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [currentPage, setCurrentPage] = useState(1);
     const CARDS_PER_PAGE = 9;
+
+    const fetchCards = async () => {
+        try {
+            const response = await fetch("/imagenes/yu_gi_oh_detailed_cards.json");
+            if (!response.ok) throw new Error("No se pudo cargar el archivo JSON");
+
+            const data = await response.json();
+            const allCards = Object.values(data).flat();
+
+            setCards(allCards);
+            localStorage.setItem("allCards", JSON.stringify(allCards)); // 🔥 Guardamos las cartas en localStorage
+        } catch (err) {
+            setError(err.message);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        fetchCards();
+    }, []);
 
     const [filters, setFilters] = useState({
         name: '',
@@ -27,21 +48,18 @@ export const useStore = () => {
     const applyFilters = useCallback(() => {
         let result = [...cards];
 
-        // Filtro por nombre
         if (filters.name) {
             result = result.filter(card =>
                 card.name.toLowerCase().includes(filters.name.toLowerCase())
             );
         }
 
-        // Filtro por atributo
         if (filters.attribute) {
             result = result.filter(card =>
                 card.attribute?.toLowerCase() === filters.attribute.toLowerCase()
             );
         }
 
-        // Filtro por nivel
         if (filters.level) {
             result = result.filter(card => {
                 const level = card.level;
@@ -55,14 +73,12 @@ export const useStore = () => {
             });
         }
 
-        // Filtro por subtipo
         if (filters.subtype) {
             result = result.filter(card =>
                 card.race?.toLowerCase() === filters.subtype.toLowerCase()
             );
         }
 
-        // Filtro por rango de precio
         if (filters.priceRange) {
             result = result.filter(card => {
                 const price = calculatePrice(card);
@@ -77,7 +93,6 @@ export const useStore = () => {
             });
         }
 
-        // Ordenamiento
         if (filters.sortOrder !== 'default') {
             result.sort((a, b) => {
                 const priceA = calculatePrice(a);
@@ -91,35 +106,6 @@ export const useStore = () => {
         setFilteredCards(result);
         setCurrentPage(1);
     }, [cards, filters, calculatePrice]);
-
-    const fetchCards = async () => {
-        try {
-            const response = await fetch('yu_gi_oh_detailed_cards.json');
-            if (!response.ok) throw new Error('Error cargando las cartas');
-
-            const data = await response.json();
-            const effectMonsters = data['Effect Monster'] || [];
-
-            // Filtrar solo las cartas que tienen nivel
-            const cardsWithLevel = effectMonsters.filter(card => {
-                return card.level !== undefined &&
-                    card.level !== null &&
-                    !isNaN(Number(card.level)) &&
-                    Number(card.level) > 0;
-            });
-
-            setCards(cardsWithLevel);
-            setFilteredCards(cardsWithLevel);
-        } catch (err) {
-            setError(err.message);
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    useEffect(() => {
-        fetchCards();
-    }, []);
 
     useEffect(() => {
         applyFilters();
@@ -136,9 +122,47 @@ export const useStore = () => {
     }, [currentPage, filteredCards]);
 
     const getTotalPages = useCallback(() =>
-            Math.ceil(filteredCards.length / CARDS_PER_PAGE),
+        Math.ceil(filteredCards.length / CARDS_PER_PAGE),
         [filteredCards]
     );
+
+    // 🔥 Función para comprar paquetes y obtener cartas aleatorias
+    const buyPackage = (packageType, addToInventory) => {
+        let minLevel, maxLevel;
+
+        switch (packageType) {
+            case "basic":
+                minLevel = 1;
+                maxLevel = 3;
+                break;
+            case "medium":
+                minLevel = 4;
+                maxLevel = 5;
+                break;
+            case "premium":
+                minLevel = 6;
+                maxLevel = 8;
+                break;
+            default:
+                return;
+        }
+
+        const allCards = JSON.parse(localStorage.getItem("allCards")) || [];
+        if (allCards.length === 0) {
+            alert("No hay cartas disponibles en el sistema.");
+            return;
+        }
+
+        const newCards = getRandomCardsByLevel(allCards, minLevel, maxLevel);
+        if (newCards.length === 0) {
+            alert("No hay suficientes cartas en este rango de nivel.");
+            return;
+        }
+
+        newCards.forEach(card => addToInventory(card));
+
+        alert(`¡Paquete ${packageType} comprado! Revisa tu inventario.`);
+    };
 
     return {
         cards: getPaginatedCards(),
@@ -150,6 +174,27 @@ export const useStore = () => {
         updateFilter,
         setCurrentPage,
         calculatePrice,
-        totalCards: filteredCards.length
+        totalCards: filteredCards.length,
+        buyPackage
     };
+};
+
+// 🔥 Función para obtener cartas aleatorias dentro de un rango de niveles
+export const getRandomCardsByLevel = (allCards, minLevel, maxLevel, quantity = 3) => {
+    if (!allCards || allCards.length === 0) {
+        console.error("❌ No hay cartas disponibles.");
+        return [];
+    }
+
+    const filteredCards = allCards.filter(card =>
+        card.level >= minLevel && card.level <= maxLevel
+    );
+
+    if (filteredCards.length === 0) {
+        console.error("❌ No hay cartas en el rango de niveles especificado.");
+        return [];
+    }
+
+    const shuffled = filteredCards.sort(() => 0.5 - Math.random());
+    return shuffled.slice(0, quantity);
 };

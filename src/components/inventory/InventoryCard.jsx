@@ -1,7 +1,14 @@
-// src/components/inventory/InventoryCard.jsx
-import React from 'react';
+const InventoryCard = ({ item, onOpenPackage }) => {
+    const handleOpen = () => {
+        if (item.type === "package") {
+            if (onOpenPackage) {
+                onOpenPackage(item);
+            } else {
+                console.error("❌ Error: onOpenPackage no está definido");
+            }
+        }
+    };
 
-const InventoryCard = ({ item }) => {
     return (
         <div className="bg-[#282a36] p-4 rounded-lg transition-transform duration-300 hover:scale-105 hover:shadow-xl">
             <img
@@ -12,9 +19,14 @@ const InventoryCard = ({ item }) => {
             <h2 className="text-lg text-white font-semibold mb-2 text-center">
                 {item.name}
             </h2>
-            <p className="text-gray-400 text-center">
-                Cantidad: {item.quantity}
-            </p>
+            {item.type === "package" && (
+                <button
+                    onClick={handleOpen}
+                    className="w-full bg-[#ffb86c] text-black py-2 rounded hover:bg-[#ffaa44] transition-colors"
+                >
+                    Abrir Paquete
+                </button>
+            )}
         </div>
     );
 };
