@@ -16,19 +16,23 @@ export const useCart = () => {
         setCart(newCart);
     };
 
-    const addToCart = (item) => {
-        const existingItem = cart.find(i => i.name === item.name);
+    const addToCart = (card) => {
+        const existingItem = cart.find(i => i.name === card.name);
         if (existingItem) {
             const newCart = cart.map(i =>
-                i.name === item.name
+                i.name === card.name
                     ? { ...i, quantity: i.quantity + 1 }
                     : i
             );
             saveCart(newCart);
         } else {
-            saveCart([...cart, { ...item, quantity: 1 }]);
+            saveCart([...cart, { 
+                ...card,
+                quantity: 1 
+            }]);
         }
     };
+    
 
     const removeFromCart = (index) => {
         const newCart = cart.filter((_, i) => i !== index);

@@ -28,20 +28,22 @@ export const useInventory = () => {
         setFilteredInventory(filtered);
     };
 
-    const addToInventory = (item) => {
+    const addToInventory = (card) => {
         const newInventory = [...inventory];
-        const existingItem = newInventory.find(i => i.name === item.name);
+        const existingItem = newInventory.find(i => i.name === card.name);
 
         if (existingItem) {
-            existingItem.quantity += item.quantity;
+            existingItem.quantity += card.quantity;
         } else {
-            newInventory.push(item);
+            newInventory.push({ 
+                ...card, // Copia todos los datos de la carta original
+            });
         }
 
         localStorage.setItem('inventory', JSON.stringify(newInventory));
         setInventory(newInventory);
-        filterInventory(searchTerm);
     };
+    
 
     const removeFromInventory = (itemName) => {
         const newInventory = inventory.filter(item => item.name !== itemName);
