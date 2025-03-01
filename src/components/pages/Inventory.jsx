@@ -1,17 +1,17 @@
 // src/components/pages/Inventory.jsx
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../hooks/useAuth';
-import { getInventory, removeFromInventory } from '../../services/inventoryService'; // Importa los servicios correspondientes
+import { getInventory, removeFromInventory } from '../../services/inventoryService';
 
 const Inventory = () => {
-    const [inventory, setInventory] = useState([]);
+    const [inventory, setInventory] = useState([]);  // Inicializa como un array vacío
     const { user } = useAuth();
 
     useEffect(() => {
         if (user) {
             const fetchInventory = async () => {
                 const data = await getInventory(user._id);
-                setInventory(data);
+                setInventory(data);  // Asegúrate de que 'data' sea un array
             };
             fetchInventory();
         }
@@ -19,8 +19,12 @@ const Inventory = () => {
 
     const handleRemove = async (cardId) => {
         const updatedInventory = await removeFromInventory(user._id, cardId);
-        setInventory(updatedInventory);  // Actualiza el estado después de eliminar la carta
+        setInventory(updatedInventory);  // Actualiza el inventario después de eliminar una carta
     };
+
+    if (!inventory) {
+        return <p>Loading...</p>;  // Muestra un mensaje mientras se carga el inventario
+    }
 
     return (
         <div>

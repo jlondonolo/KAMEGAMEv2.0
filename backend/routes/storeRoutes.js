@@ -2,15 +2,18 @@ const express = require('express');
 const Card = require('../models/Card');
 const User = require('../models/User');
 const router = express.Router();
+const Store = require('../models/storeModel');
 
-// Obtener todas las cartas disponibles en la tienda
-router.get('/cards', async (req, res) => {
-    try {
-        const cards = await Card.find();
-        res.json(cards);
-    } catch (error) {
-        res.status(500).json({ error: 'Error al obtener las cartas' });
-    }
+// Ruta para obtener todas las cartas de Yu-Gi-Oh
+router.get('/cards', (req, res) => {
+    fs.readFile(path.join(__dirname, '../imagenes/yu_gi_oh_detailed_cards.json'), 'utf8', (err, data) => {
+        if (err) {
+            return res.status(500).json({ message: 'Error al leer el archivo de cartas' });
+        }
+        const jsonData = JSON.parse(data);
+        const allCards = Object.values(jsonData).flat(); // Aplanar los datos si es necesario
+        res.json(allCards); // Enviar las cartas como respuesta
+    });
 });
 
 // Comprar una carta y agregarla al inventario del usuario

@@ -1,47 +1,51 @@
-// src/components/pages/Store.jsx
+// src/components/store/Store.jsx
 import React, { useState, useEffect } from 'react';
-import { getCards, buyCard } from '../../services/storeService';  // Asegúrate de tener estos métodos en storeService.js
-import { useAuth } from '../../hooks/useAuth';
+import axios from 'axios';
 
 const Store = () => {
     const [cards, setCards] = useState([]);
-    const { user } = useAuth(); // Obtener el usuario autenticado
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
 
     useEffect(() => {
         const fetchCards = async () => {
-            const data = await getCards();
-            setCards(data);
+            try {
+                const response = await axios.get('http://localhost:5000/api/store/cards'); // Asegúrate de que la URL sea correcta
+                setCards(response.data); // Guarda las cartas en el estado
+            } catch (err) {
+                setError('Error al cargar las cartas');
+            } finally {
+                setLoading(false);
+            }
         };
+
         fetchCards();
     }, []);
 
-    const handleBuyCard = async (cardId) => {
-        if (!user) {
-            alert("Por favor, inicia sesión primero.");
-            return;
-        }
-        const success = await buyCard(user._id, cardId); // Suponiendo que "user._id" está disponible
-        if (success) {
-            alert("¡Compra realizada con éxito!");
-        } else {
-            alert("Error al realizar la compra.");
-        }
-    };
+    if (loading) {
+        return <div>Cargando...</div>;
+    }
+
+    if (error) {
+        return <div>{error}</div>;
+    }
 
     return (
         <div>
             <h2>Cartas en la Tienda</h2>
             <div>
-                {cards.map((card) => (
-                    <div key={card._id}>
-                        <h3>{card.name}</h3>
-                        <img src={card.image_url} alt={card.name} />
-                        <p>Precio: {card.price} PM</p>
-                        <button onClick={() => handleBuyCard(card._id)}>
-                            Comprar
-                        </button>
-                    </div>
-                ))}
+                {cards.length > 0 ? (
+                    cards.map((card) => (
+                        <div key={card.id}>
+                            <img src={card.image_url} alt={card.name} />
+                            <p>{card.name}</p>
+                            <p>{card.price}</p>
+                            <button>Add to Cart</button>
+                        </div>
+                    ))
+                ) : (
+                    <p>No hay cartas disponibles en la tienda.</p>
+                )}
             </div>
         </div>
     );
