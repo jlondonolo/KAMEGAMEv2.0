@@ -1,30 +1,48 @@
-import React from "react";
-import { useInventory } from "../../hooks/useInventory.js";
-import InventoryCard from "../../components/inventory/InventoryCard.jsx";
-import SearchBar from "../../components/inventory/SearchBar.jsx";
-import { getRandomCardsByLevel } from "../../hooks/useStore.js"; // ✅ Importación corregida
+// src/components/pages/Inventory.jsx
+import React, { useState, useEffect } from 'react';
+import { useAuth } from '../../hooks/useAuth';
+import { getInventory, removeFromInventory } from '../../services/inventoryService'; // Importa los servicios correspondientes
 
 const Inventory = () => {
-    const { inventory, searchTerm, setSearchTerm, openPackage } = useInventory();
+    const [inventory, setInventory] = useState([]);
+    const { user } = useAuth();
+
+    useEffect(() => {
+        if (user) {
+            const fetchInventory = async () => {
+                const data = await getInventory(user._id);
+                setInventory(data);
+            };
+            fetchInventory();
+        }
+    }, [user]);
+
+    const handleRemove = async (cardId) => {
+        const updatedInventory = await removeFromInventory(user._id, cardId);
+        setInventory(updatedInventory);  // Actualiza el estado después de eliminar la carta
+    };
 
     return (
-        <div className="container mx-auto px-4 py-8">
-            <div className="max-w-4xl mx-auto">
-                <h1 className="text-2xl text-white font-bold mb-8 text-center">Tu Inventario</h1>
-
-                <SearchBar value={searchTerm} onChange={setSearchTerm} />
-
-                {inventory.length === 0 ? (
-                    <p className="text-white text-center mt-6">Tu inventario está vacío.</p>
+        <div>
+            <h2>Tu Inventario</h2>
+            <div>
+                {inventory.length > 0 ? (
+                    inventory.map((card) => (
+                        <div key={card._id}>
+                            <h3>{card.name}</h3>
+                            <img src={card.image_url} alt={card.name} />
+                            <p>ATK: {card.atk} | DEF: {card.def}</p>
+                            <button onClick={() => handleRemove(card._id)}>
+                                Eliminar
+                            </button>
+                        </div>
+                    ))
                 ) : (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-                        {inventory.map((item, index) => (
-                            <InventoryCard key={index} item={item} onOpenPackage={() => openPackage(item)} />
-                        ))}
-                    </div>
+                    <p>No tienes cartas en tu inventario.</p>
                 )}
             </div>
         </div>
     );
 };
+
 export default Inventory;

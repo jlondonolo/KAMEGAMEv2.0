@@ -1,84 +1,47 @@
-// src/pages/Store.jsx
-import React from 'react';
-import { useStore } from '../../hooks/useStore.js';
-import LaunchOffers from '../../components/store/LaunchOffers.jsx';
-import StoreFilters from '../store/StoreFilters';
-import CardGrid from '../../components/store/CardGrid.jsx';
-import Pagination from '../../components/store/Pagination.jsx';
-import Packages from '../../components/store/Packages.jsx'; // Añade esta importación
+// src/components/pages/Store.jsx
+import React, { useState, useEffect } from 'react';
+import { getCards, buyCard } from '../../services/storeService';  // Asegúrate de tener estos métodos en storeService.js
+import { useAuth } from '../../hooks/useAuth';
 
 const Store = () => {
-    const {
-        cards,
-        loading,
-        error,
-        filters,
-        currentPage,
-        totalPages,
-        updateFilter,
-        setCurrentPage,
-        calculatePrice,
-        totalCards
-    } = useStore();
+    const [cards, setCards] = useState([]);
+    const { user } = useAuth(); // Obtener el usuario autenticado
 
-    if (loading) {
-        return (
-            <div className="min-h-screen bg-[#1e1e2f] flex items-center justify-center">
-                <div className="text-white text-xl">Cargando...</div>
-            </div>
-        );
-    }
-    if (error) {
-        return (
-            <div className="min-h-screen bg-[#1e1e2f] flex items-center justify-center">
-                <div className="text-red-500 text-xl">Error: {error}</div>
-            </div>
-        );
-    }
+    useEffect(() => {
+        const fetchCards = async () => {
+            const data = await getCards();
+            setCards(data);
+        };
+        fetchCards();
+    }, []);
+
+    const handleBuyCard = async (cardId) => {
+        if (!user) {
+            alert("Por favor, inicia sesión primero.");
+            return;
+        }
+        const success = await buyCard(user._id, cardId); // Suponiendo que "user._id" está disponible
+        if (success) {
+            alert("¡Compra realizada con éxito!");
+        } else {
+            alert("Error al realizar la compra.");
+        }
+    };
 
     return (
-        <div className="min-h-screen bg-[#1e1e2f] pb-8">
-            <LaunchOffers />
-
-            <StoreFilters
-                filters={filters}
-                onFilterChange={updateFilter}
-            />
-
-            {/* Contenedor flex que cambia a columna en móvil */}
-            <div className="mx-5 mt-8 flex flex-col lg:flex-row gap-8">
-                {/* Contenedor de cartas */}
-                <div className="flex-1 bg-[#0c0c1d] rounded-lg p-6">
-                    <div className="flex justify-between items-center mb-6">
-                        <h3 className="text-white text-xl">
-                            Catálogo de Cartas ({totalCards} resultados)
-                        </h3>
+        <div>
+            <h2>Cartas en la Tienda</h2>
+            <div>
+                {cards.map((card) => (
+                    <div key={card._id}>
+                        <h3>{card.name}</h3>
+                        <img src={card.image_url} alt={card.name} />
+                        <p>Precio: {card.price} PM</p>
+                        <button onClick={() => handleBuyCard(card._id)}>
+                            Comprar
+                        </button>
                     </div>
-
-                    {cards.length === 0 ? (
-                        <div className="text-center text-white py-8">
-                            No se encontraron cartas que coincidan con los filtros seleccionados.
-                        </div>
-                    ) : (
-                        <>
-                            <CardGrid
-                                cards={cards}
-                                calculatePrice={calculatePrice}
-                            />
-
-                            <Pagination
-                                currentPage={currentPage}
-                                totalPages={totalPages}
-                                onPageChange={setCurrentPage}
-                            />
-                        </>
-                    )}
-                </div>
-
-                {/* Contenedor de paquetes */}
-                <div className="lg:w-1/4 bg-[#0c0c1d] rounded-lg p-6">
-                    <Packages />
-                </div>
+                ))}
             </div>
         </div>
     );
