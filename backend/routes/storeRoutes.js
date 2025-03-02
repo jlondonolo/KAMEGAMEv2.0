@@ -2,7 +2,8 @@ const express = require('express');
 const Card = require('../models/Card');
 const User = require('../models/User');
 const router = express.Router();
-const Store = require('../models/storeModel');
+const Store = require('../models/storeModel');  // ✅ Esta es la importación correcta
+
 
 // Ruta para obtener todas las cartas de Yu-Gi-Oh
 router.get('/cards', (req, res) => {
