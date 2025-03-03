@@ -1,5 +1,5 @@
 // src/pages/Store.jsx
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useStore } from '../../hooks/useStore.js';
 import LaunchOffers from '../../components/store/LaunchOffers.jsx';
 import StoreFilters from '../store/StoreFilters';
@@ -21,6 +21,16 @@ const Store = () => {
         totalCards
     } = useStore();
 
+    const [magicPoints, setMagicPoints] = useState(0); // Estado para los puntos mágicos
+
+    // Obtener los puntos mágicos del usuario cuando el componente se monta
+    useEffect(() => {
+        const storedUser = JSON.parse(localStorage.getItem('user') || '{}');
+        if (storedUser && storedUser.magicPoints !== undefined) {
+            setMagicPoints(storedUser.magicPoints); // Establecer los puntos mágicos
+        }
+    }, []);
+
     if (loading) {
         return (
             <div className="min-h-screen bg-[#1e1e2f] flex items-center justify-center">
@@ -40,6 +50,7 @@ const Store = () => {
         <div className="min-h-screen bg-[#1e1e2f] pb-8">
             <LaunchOffers />
 
+            {/* Sección de filtros */}
             <StoreFilters
                 filters={filters}
                 onFilterChange={updateFilter}
@@ -50,9 +61,15 @@ const Store = () => {
                 {/* Contenedor de cartas */}
                 <div className="flex-1 bg-[#0c0c1d] rounded-lg p-6">
                     <div className="flex justify-between items-center mb-6">
-                        <h3 className="text-white text-xl">
-                            Catálogo de Cartas ({totalCards} resultados)
-                        </h3>
+                        <div className="flex items-center">
+                            {/* Aquí es donde se mostrará el contador de puntos mágicos */}
+                            <div className="text-white mr-4">
+                                Puntos mágicos: {magicPoints}
+                            </div>
+                            <h3 className="text-white text-xl">
+                                Catálogo de Cartas ({totalCards} resultados)
+                            </h3>
+                        </div>
                     </div>
 
                     {cards.length === 0 ? (
