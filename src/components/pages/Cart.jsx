@@ -1,17 +1,26 @@
 // src/pages/Cart.jsx
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useCart } from '../../hooks/useCart';
-import { useAuth } from '../../hooks/useAuth'; // ✅ Importamos el hook de autenticación
+import { useAuth } from '../../hooks/useAuth'; 
 import CartItem from '../../components/cart/CartItem.jsx';
 import CartSummary from '../../components/cart/CartSummary.jsx';
 import RelatedProducts from '../../components/cart/RelatedProducts';
 
 const Cart = () => {
     const { cart, removeFromCart, updateQuantity, getTotal, clearCart } = useCart();
-    const { isAuthenticated } = useAuth(); // ✅ Verificamos si el usuario está autenticado
+    const { isAuthenticated } = useAuth(); 
     const navigate = useNavigate();
     const [showLoginModal, setShowLoginModal] = useState(false);
+    const [magicPoints, setMagicPoints] = useState(0);
+
+    // Obtener los puntos mágicos del usuario
+    useEffect(() => {
+        const storedUser = JSON.parse(localStorage.getItem('user') || '{}');
+        if (storedUser && storedUser.magicPoints) {
+            setMagicPoints(storedUser.magicPoints);
+        }
+    }, []);
 
     const handleBuy = () => {
         if (cart.length === 0) {
@@ -20,7 +29,13 @@ const Cart = () => {
         }
 
         if (!isAuthenticated()) {
-            setShowLoginModal(true); // ✅ Muestra el mensaje de "Debes iniciar sesión"
+            setShowLoginModal(true); 
+            return;
+        }
+
+        const totalCost = getTotal();
+        if (magicPoints < totalCost) {
+            alert('No tienes suficientes puntos mágicos para realizar esta compra.');
             return;
         }
 
@@ -37,6 +52,14 @@ const Cart = () => {
         });
 
         localStorage.setItem('inventory', JSON.stringify(updatedInventory));
+
+        // Descontamos los puntos mágicos
+        const updatedUser = {
+            ...JSON.parse(localStorage.getItem('user')),
+            magicPoints: magicPoints - totalCost
+        };
+        localStorage.setItem('user', JSON.stringify(updatedUser));
+
         clearCart();
         alert('Compra realizada con éxito. Tus cartas están ahora en el inventario.');
         navigate('/inventario');
@@ -74,7 +97,6 @@ const Cart = () => {
 
             <RelatedProducts />
 
-            {/* ✅ Modal de "Debes iniciar sesión" */}
             {showLoginModal && (
                 <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-75">
                     <div className="bg-[#282a36] text-white p-6 rounded-lg shadow-lg text-center">

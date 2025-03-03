@@ -27,6 +27,15 @@ const Register = () => {
         );
 
         if (success) {
+            // Al registrar un usuario, asignamos 1000 puntos mágicos
+            const newUser = {
+                username: formData.username,
+                magicPoints: 1000
+            };
+
+            // Guardamos el nuevo usuario en localStorage
+            localStorage.setItem('user', JSON.stringify(newUser));
+
             navigate('/login');
         } else {
             alert('El nombre de usuario ya está registrado');
