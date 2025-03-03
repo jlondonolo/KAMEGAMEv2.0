@@ -8,7 +8,7 @@ const Sidebar = ({ user, userLevel, onLogout }) => {
             <div className="text-center">
                 <div className="mb-4">
                     <img
-                        src={user.avatar || "/logo/default-avatar.webp"}
+                        src={user.avatar || "/logo/pegasus.webp"}
                         alt="Perfil"
                         className="w-24 h-24 rounded-full border-2 border-white mx-auto"
                     />
