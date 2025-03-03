@@ -7,9 +7,7 @@ const Register = () => {
     const [formData, setFormData] = useState({
         username: '',
         password: '',
-        confirmPassword: '',
-        country: '',
-        avatar: null
+        confirmPassword: ''
     });
 
     const navigate = useNavigate();
@@ -23,35 +21,23 @@ const Register = () => {
             return;
         }
 
-        if (!formData.avatar) {
-            alert('Por favor selecciona un avatar');
-            return;
+        const success = register(
+            formData.username,
+            formData.password
+        );
+
+        if (success) {
+            navigate('/login');
+        } else {
+            alert('El nombre de usuario ya está registrado');
         }
-
-        const reader = new FileReader();
-        reader.onload = (e) => {
-            const success = register(
-                formData.username,
-                formData.password,
-                formData.country,
-                e.target.result
-            );
-
-            if (success) {
-                navigate('/login');
-            } else {
-                alert('El nombre de usuario ya está registrado');
-            }
-        };
-
-        reader.readAsDataURL(formData.avatar);
     };
 
     const handleChange = (e) => {
-        const { name, value, type, files } = e.target;
+        const { name, value } = e.target;
         setFormData(prev => ({
             ...prev,
-            [name]: type === 'file' ? files[0] : value
+            [name]: value
         }));
     };
 
@@ -103,36 +89,6 @@ const Register = () => {
                                 name="confirmPassword"
                                 value={formData.confirmPassword}
                                 onChange={handleChange}
-                                className="w-full p-3 bg-[#383a59] border border-[#44475a] rounded-md text-white"
-                                required
-                            />
-                        </div>
-
-                        <div>
-                            <label className="block text-white mb-2" htmlFor="country">
-                                Country
-                            </label>
-                            <input
-                                type="text"
-                                id="country"
-                                name="country"
-                                value={formData.country}
-                                onChange={handleChange}
-                                className="w-full p-3 bg-[#383a59] border border-[#44475a] rounded-md text-white"
-                                required
-                            />
-                        </div>
-
-                        <div>
-                            <label className="block text-white mb-2" htmlFor="avatar">
-                                Avatar
-                            </label>
-                            <input
-                                type="file"
-                                id="avatar"
-                                name="avatar"
-                                onChange={handleChange}
-                                accept="image/*"
                                 className="w-full p-3 bg-[#383a59] border border-[#44475a] rounded-md text-white"
                                 required
                             />
