@@ -1,18 +1,26 @@
 // src/pages/Cart.jsx
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useCart } from '../../hooks/useCart';
+import { useAuth } from '../../hooks/useAuth'; // ✅ Importamos el hook de autenticación
 import CartItem from '../../components/cart/CartItem.jsx';
 import CartSummary from '../../components/cart/CartSummary.jsx';
 import RelatedProducts from '../../components/cart/RelatedProducts';
 
 const Cart = () => {
     const { cart, removeFromCart, updateQuantity, getTotal, clearCart } = useCart();
+    const { isAuthenticated } = useAuth(); // ✅ Verificamos si el usuario está autenticado
     const navigate = useNavigate();
+    const [showLoginModal, setShowLoginModal] = useState(false);
 
     const handleBuy = () => {
         if (cart.length === 0) {
             alert('El carrito está vacío. Agrega productos antes de comprar.');
+            return;
+        }
+
+        if (!isAuthenticated()) {
+            setShowLoginModal(true); // ✅ Muestra el mensaje de "Debes iniciar sesión"
             return;
         }
 
@@ -65,6 +73,22 @@ const Cart = () => {
             </div>
 
             <RelatedProducts />
+
+            {/* ✅ Modal de "Debes iniciar sesión" */}
+            {showLoginModal && (
+                <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-75">
+                    <div className="bg-[#282a36] text-white p-6 rounded-lg shadow-lg text-center">
+                        <h2 className="text-xl font-bold mb-4">Debes iniciar sesión</h2>
+                        <p className="mb-4">Para completar tu compra, debes iniciar sesión.</p>
+                        <button
+                            className="bg-[#ff5555] px-4 py-2 rounded-md text-white hover:bg-[#ff4444]"
+                            onClick={() => navigate('/login')}
+                        >
+                            Ir a iniciar sesión
+                        </button>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };
