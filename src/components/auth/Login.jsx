@@ -6,9 +6,9 @@ import { useAuth } from '../../hooks/useAuth.js';
 const Login = () => {
     const [formData, setFormData] = useState({
         username: '',
-        password: '',
-        remember: false
+        password: ''
     });
+
     const navigate = useNavigate();
     const { login } = useAuth();
 
@@ -22,10 +22,10 @@ const Login = () => {
     };
 
     const handleChange = (e) => {
-        const { name, value, type, checked } = e.target;
+        const { name, value } = e.target;
         setFormData(prev => ({
             ...prev,
-            [name]: type === 'checkbox' ? checked : value
+            [name]: value
         }));
     };
 
@@ -67,22 +67,6 @@ const Login = () => {
                                 placeholder="Enter your password"
                                 required
                             />
-                        </div>
-
-                        <div className="flex items-center justify-between">
-                            <label className="flex items-center text-white">
-                                <input
-                                    type="checkbox"
-                                    name="remember"
-                                    checked={formData.remember}
-                                    onChange={handleChange}
-                                    className="mr-2"
-                                />
-                                Remember Me
-                            </label>
-                            <a href="#" className="text-[#8be9fd] hover:underline">
-                                Forgot Your Password?
-                            </a>
                         </div>
 
                         <button

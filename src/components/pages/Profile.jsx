@@ -10,12 +10,7 @@ import FavoriteCards from '../../components/profile/FavoriteCards.jsx';
 const Profile = () => {
     const navigate = useNavigate();
     const { isAuthenticated, isInitialized } = useAuth();
-    const {
-        user,
-        favoriteCards,
-        userLevel,
-        logout
-    } = useProfile();
+    const { user, favoriteCards, userLevel, logout } = useProfile();
 
     useEffect(() => {
         if (isInitialized && !isAuthenticated()) {
@@ -25,14 +20,22 @@ const Profile = () => {
 
     // Mostrar un loader mientras se verifica la autenticación
     if (!isInitialized) {
-        return <div className="min-h-screen bg-[#1e1e2f] flex items-center justify-center">
-            <div className="text-white">Cargando...</div>
-        </div>;
+        return (
+            <div className="min-h-screen bg-[#1e1e2f] flex items-center justify-center">
+                <div className="text-white">Cargando...</div>
+            </div>
+        );
     }
 
     if (!user) {
         return null;
     }
+
+    // Asignar avatar por defecto si el usuario no tiene uno
+    const updatedUser = {
+        ...user,
+        avatar: user.avatar || "/logo/Pegasus.webp"
+    };
 
     const handleLogout = () => {
         logout();
@@ -43,12 +46,8 @@ const Profile = () => {
         <div className="min-h-screen bg-[#1e1e2f]">
             <div className="container mx-auto px-4 py-8">
                 <div className="flex flex-col md:flex-row gap-6">
-                    <Sidebar
-                        user={user}
-                        userLevel={userLevel}
-                        onLogout={handleLogout}
-                    />
-                    <MainContent user={user} />
+                    <Sidebar user={updatedUser} userLevel={userLevel} onLogout={handleLogout} />
+                    <MainContent user={updatedUser} />
                     <FavoriteCards favorites={favoriteCards} />
                 </div>
             </div>
