@@ -14,10 +14,14 @@ export const useStore = () => {
             if (!response.ok) throw new Error("No se pudo cargar el archivo JSON");
 
             const data = await response.json();
-            const allCards = Object.values(data).flat();
+            let allCards = Object.values(data).flat();
+
+            // Filtrar para incluir solo cartas que tengan nivel
+            allCards = allCards.filter(card => card.level !== undefined && card.level !== null);
 
             setCards(allCards);
-            localStorage.setItem("allCards", JSON.stringify(allCards)); // 🔥 Guardamos las cartas en localStorage
+            // Eliminamos esta línea para evitar el error de cuota excedida
+            // localStorage.setItem("allCards", JSON.stringify(allCards));
         } catch (err) {
             setError(err.message);
         } finally {
@@ -122,11 +126,11 @@ export const useStore = () => {
     }, [currentPage, filteredCards]);
 
     const getTotalPages = useCallback(() =>
-        Math.ceil(filteredCards.length / CARDS_PER_PAGE),
+            Math.ceil(filteredCards.length / CARDS_PER_PAGE),
         [filteredCards]
     );
 
-    // 🔥 Función para comprar paquetes y obtener cartas aleatorias
+    // Función modificada para comprar paquetes y obtener cartas aleatorias
     const buyPackage = (packageType, addToInventory) => {
         let minLevel, maxLevel;
 
@@ -147,13 +151,13 @@ export const useStore = () => {
                 return;
         }
 
-        const allCards = JSON.parse(localStorage.getItem("allCards")) || [];
-        if (allCards.length === 0) {
+        // Usamos las cartas del state en lugar de localStorage
+        if (cards.length === 0) {
             alert("No hay cartas disponibles en el sistema.");
             return;
         }
 
-        const newCards = getRandomCardsByLevel(allCards, minLevel, maxLevel);
+        const newCards = getRandomCardsByLevel(cards, minLevel, maxLevel);
         if (newCards.length === 0) {
             alert("No hay suficientes cartas en este rango de nivel.");
             return;
@@ -179,7 +183,7 @@ export const useStore = () => {
     };
 };
 
-// 🔥 Función para obtener cartas aleatorias dentro de un rango de niveles
+// Función para obtener cartas aleatorias dentro de un rango de niveles
 export const getRandomCardsByLevel = (allCards, minLevel, maxLevel, quantity = 3) => {
     if (!allCards || allCards.length === 0) {
         console.error("❌ No hay cartas disponibles.");
@@ -187,7 +191,10 @@ export const getRandomCardsByLevel = (allCards, minLevel, maxLevel, quantity = 3
     }
 
     const filteredCards = allCards.filter(card =>
-        card.level >= minLevel && card.level <= maxLevel
+        card.level !== undefined &&
+        card.level !== null &&
+        card.level >= minLevel &&
+        card.level <= maxLevel
     );
 
     if (filteredCards.length === 0) {
