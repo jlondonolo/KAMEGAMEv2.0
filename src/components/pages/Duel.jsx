@@ -40,11 +40,10 @@ const getSampleCards = () => {
         const cardsOfLevel = cardsByLevel[level];
         const sampleSize = Math.min(10, cardsOfLevel.length);
 
-        // Solo procesamos si hay cartas de este nivel
         if (cardsOfLevel.length > 0) {
           const sample = cardsOfLevel
-            .sort(() => 0.5 - Math.random()) // Mezclar aleatoriamente
-            .slice(0, sampleSize);          // Tomar las primeras 10 (o menos)
+            .sort(() => 0.5 - Math.random())
+            .slice(0, sampleSize);
           selectedCards = [...selectedCards, ...sample];
         }
       });
@@ -57,7 +56,6 @@ const getSampleCards = () => {
       }
     }
 
-    // Si no pudimos obtener cartas, devolvemos un array vacío
     console.log("No se pudieron cargar cartas de muestra, devolviendo array vacío");
     return [];
   } catch (error) {
@@ -67,57 +65,40 @@ const getSampleCards = () => {
 };
 
 const Duel = () => {
-  // Usamos el hook useInventory para acceder directamente al inventario
   const { inventory } = useInventory();
 
-  // Para controlar si el duelo ya comenzó
   const [hasStarted, setHasStarted] = useState(false);
-
-  // Para mostrar el video de inicio a pantalla completa
   const [showGif, setShowGif] = useState(false);
 
-  // Estados de vida
   const [playerLife, setPlayerLife] = useState(3500);
   const [cpuLife, setCpuLife] = useState(3500);
 
-  // Estados para las cartas en batalla
   const [playerCard, setPlayerCard] = useState(null);
   const [cpuCard, setCpuCard] = useState(null);
 
-  // Estado para las cartas en la mano del jugador
   const [playerHand, setPlayerHand] = useState([]);
-
-  // Estado para indicar si hay un ganador (null => sigue el duelo)
   const [winner, setWinner] = useState(null);
 
-  // Ruta del video/imagen final y bandera para mostrarlo en overlay
   const [finalGif, setFinalGif] = useState(null);
   const [showFinalGif, setShowFinalGif] = useState(false);
 
-  // Estados para el origen de las cartas y cartas de muestra
   const [useInventoryCards, setUseInventoryCards] = useState(true);
   const [sampleCards, setSampleCards] = useState([]);
 
-  // Al cargar el inventario, decidimos qué fuente de cartas usar
   useEffect(() => {
-    // Evitamos procesamiento innecesario si el inventario está vacío
     if (inventory.length === 0) return;
 
-    // Filtramos para incluir solo las cartas válidas del inventario (no los paquetes)
     const validCards = inventory.filter(item =>
       item.type !== "package" &&
       !item.name?.includes("Paquete") &&
-      // Nos aseguramos de que tenga valores de ataque y defensa (o al menos sean 0)
       (item.atk !== undefined && item.def !== undefined)
     );
 
-    // Si hay al menos 10 cartas válidas en el inventario, las usamos
     if (validCards.length >= 10) {
       console.log("Usando cartas del inventario:", validCards.length);
       setPlayerHand(validCards);
       setUseInventoryCards(true);
     } else {
-      // Si no hay suficientes cartas en el inventario, cargamos las de muestra
       console.log("No hay suficientes cartas en inventario, cargando cartas de muestra...");
       const samples = getSampleCards();
       setSampleCards(samples);
@@ -126,26 +107,21 @@ const Duel = () => {
     }
   }, [inventory.length]);
 
-  // Cada vez que "winner" cambie, vemos si hay que mostrar un video/imagen final
   useEffect(() => {
-    if (!winner) return; // si no hay ganador, no hacemos nada
+    if (!winner) return;
 
     let gifPath = "";
     if (winner === "Jugador") {
-      // Antes: "/gifs/Victoria.gif"
       gifPath = "/gifs/victoria.mp4";
     } else if (winner === "CPU") {
-      // Antes: "/gifs/perdiste.gif"
       gifPath = "/gifs/perdiste.mp4";
     } else if (winner === "Empate") {
-      // Antes: "/gifs/Empate.gif"
       gifPath = "/gifs/Empate.mp4";
     }
 
     setFinalGif(gifPath);
     setShowFinalGif(true);
 
-    // Mostramos el contenido final, por ejemplo, 5 segundos.
     const timer = setTimeout(() => {
       setShowFinalGif(false);
     }, 5000);
@@ -153,32 +129,21 @@ const Duel = () => {
     return () => clearTimeout(timer);
   }, [winner]);
 
-  // Manejo del turno cuando el jugador selecciona una carta
   const handleTurn = (selectedCard) => {
-    if (winner) return; // No hacemos nada si ya hay ganador
+    if (winner) return;
 
     setPlayerCard(selectedCard);
 
-    // Seleccionamos una carta aleatoria para la CPU
     let cpuCardPool = [];
-
     if (useInventoryCards) {
-      cpuCardPool = playerHand.filter(card =>
-        card.atk !== undefined && card.def !== undefined
-      );
+      cpuCardPool = playerHand.filter(card => card.atk !== undefined && card.def !== undefined);
     } else {
-      // Usamos todas las cartas disponibles (inventario + muestra)
-      cpuCardPool = [...playerHand].filter(card =>
-        card.atk !== undefined && card.def !== undefined
-      );
+      cpuCardPool = [...playerHand].filter(card => card.atk !== undefined && card.def !== undefined);
       if (cpuCardPool.length < 5 && sampleCards.length > 0) {
-        cpuCardPool = sampleCards.filter(card =>
-          card.atk !== undefined && card.def !== undefined
-        );
+        cpuCardPool = sampleCards.filter(card => card.atk !== undefined && card.def !== undefined);
       }
     }
 
-    // Carta por defecto en caso de que no haya disponibles
     const defaultCpuCard = {
       name: "Carta CPU",
       atk: 1000,
@@ -193,18 +158,15 @@ const Duel = () => {
 
     setCpuCard(randomCpuCard);
 
-    // Calculamos el daño
     const damageToCpu = calcularDanio(selectedCard.atk || 0, randomCpuCard.def || 0);
     const damageToPlayer = calcularDanio(randomCpuCard.atk || 0, selectedCard.def || 0);
 
-    // Actualizamos vidas
     const newCpuLife = cpuLife - damageToCpu;
     const newPlayerLife = playerLife - damageToPlayer;
 
     setCpuLife(newCpuLife);
     setPlayerLife(newPlayerLife);
 
-    // Verificamos si alguien llegó a 0
     if (newCpuLife <= 0 && newPlayerLife <= 0) {
       setWinner("Empate");
     } else if (newCpuLife <= 0) {
@@ -214,7 +176,6 @@ const Duel = () => {
     }
   };
 
-  // Función para reiniciar el duelo
   const resetDuel = () => {
     setPlayerLife(3500);
     setCpuLife(3500);
@@ -225,40 +186,35 @@ const Duel = () => {
     setShowFinalGif(false);
   };
 
-  // Muestra "N/A" si un stat es null
   const displayStat = (stat) => (stat != null ? stat : "N/A");
 
-  // Al hacer clic en "Iniciar Duelo"
   const handleStartDuel = () => {
-    // Mostramos el video de inicio
     setShowGif(true);
-
-    // Esperamos 10s (10000 ms) para que el video termine
     setTimeout(() => {
       setShowGif(false);
       setHasStarted(true);
     }, 10000);
   };
 
-  // ==================== RENDER ====================
-
-  // 1) Si showGif = true, mostramos el video de inicio a pantalla completa
+  // ======================================
+  //                RENDER
+  // ======================================
   if (showGif) {
     return (
-      <div className="fixed inset-0 bg-black z-0 overflow-hidden flex items-center justify-center">
+      <div className="fixed inset-0 bg-black z-10 overflow-hidden flex items-center justify-center">
+        {/* Uso de object-contain para evitar recorte en móvil */}
         <video
           src="/gifs/inicio_de_duelo.mp4"
-          className="w-full h-full object-cover"
+          className="max-w-full max-h-full object-contain"
           autoPlay
         />
       </div>
     );
   }
 
-  // 2) Si el duelo no ha iniciado, botón para iniciarlo
   if (!hasStarted) {
     return (
-      <div className="min-h-screen bg-[#1e1e2f] p-8 flex flex-col items-center justify-center">
+      <div className="min-h-screen bg-[#1e1e2f] p-4 md:p-8 flex flex-col items-center justify-center">
         <h1 className="text-white text-3xl font-bold mb-6">Duelo</h1>
         <button
           className="bg-blue-600 text-white px-4 py-2 rounded text-xl"
@@ -270,24 +226,21 @@ const Duel = () => {
     );
   }
 
-  // 3) Interfaz del duelo (ya iniciado)
   return (
-    <div className="min-h-screen bg-[#1e1e2f] p-8 relative">
-
-      {/* Si showFinalGif = true y hay algo en finalGif, mostramos overlay */}
+    <div className="min-h-screen bg-[#1e1e2f] p-4 md:p-8 relative">
       {showFinalGif && finalGif && (
         <div className="fixed inset-0 bg-black bg-opacity-90 z-50 overflow-hidden flex items-center justify-center">
           {finalGif.endsWith(".mp4") ? (
             <video
               src={finalGif}
-              className="w-full h-full object-cover"
+              className="max-w-full max-h-full object-contain"
               autoPlay
             />
           ) : (
             <img
               src={finalGif}
               alt="Resultado"
-              className="w-full h-full object-cover"
+              className="max-w-full max-h-full object-contain"
             />
           )}
         </div>
@@ -295,7 +248,6 @@ const Duel = () => {
 
       <h1 className="text-white text-3xl font-bold text-center mb-6">Duelo</h1>
 
-      {/* Mensaje de ganador solo si winner existe y el overlay ya terminó */}
       {winner && !showFinalGif && (
         <div className="text-center mb-6">
           {winner === "Empate" ? (
@@ -314,17 +266,18 @@ const Duel = () => {
         </div>
       )}
 
-      <div className="flex gap-8">
+      <div className="flex flex-col lg:flex-row gap-6 lg:gap-8">
         {/* Zona de batalla */}
         <div className="flex-grow">
-          <div className="flex justify-center gap-20 items-center mb-10">
+          {/* Contenedor Jugador/CPU */}
+          <div className="flex flex-col md:flex-row items-start md:items-center justify-center gap-6 md:gap-20 mb-10">
             {/* Jugador */}
             <div className="text-center">
               <h2 className="text-white text-xl font-bold">Tú</h2>
               <p className="text-white">Vida: {playerLife}</p>
-              <div className="w-[150px] h-[220px] bg-gray-700 flex items-center justify-center rounded-md mx-auto mt-2">
+              <div className="w-[150px] bg-gray-700 flex flex-col items-center justify-start rounded-md mx-auto mt-2 p-2">
                 {playerCard ? (
-                  <div className="w-full h-full flex flex-col items-center">
+                  <>
                     <img
                       src={playerCard.image_url || "/imagenes/placeholder-card.webp"}
                       alt={playerCard.name}
@@ -334,14 +287,14 @@ const Duel = () => {
                         e.target.src = "/imagenes/placeholder-card.webp";
                       }}
                     />
-                    <p className="text-white text-sm">{playerCard.name}</p>
+                    <p className="text-white text-sm mt-2">{playerCard.name}</p>
                     <p className="text-gray-400 text-xs">
                       ATK: {displayStat(playerCard.atk)}
                     </p>
                     <p className="text-gray-400 text-xs">
                       DEF: {displayStat(playerCard.def)}
                     </p>
-                  </div>
+                  </>
                 ) : (
                   <p className="text-gray-400">Selecciona una carta</p>
                 )}
@@ -352,26 +305,26 @@ const Duel = () => {
             <div className="text-center">
               <h2 className="text-white text-xl font-bold">CPU</h2>
               <p className="text-white">Vida: {cpuLife}</p>
-              <div className="w-[150px] h-[220px] bg-gray-700 flex items-center justify-center rounded-md mx-auto mt-2">
+              <div className="w-[150px] bg-gray-700 flex flex-col items-center justify-start rounded-md mx-auto mt-2 p-2">
                 {cpuCard ? (
-                  <div className="w-full h-full flex flex-col items-center">
+                  <>
                     <img
                       src={cpuCard.image_url || "/imagenes/placeholder-card.webp"}
                       alt={cpuCard.name}
-                      className="w-full max-w-xs h-auto object-contain"
+                      className="max-w-full h-auto object-contain"
                       onError={(e) => {
                         e.target.onerror = null;
                         e.target.src = "/imagenes/placeholder-card.webp";
                       }}
                     />
-                    <p className="text-white text-sm">{cpuCard.name}</p>
+                    <p className="text-white text-sm mt-2">{cpuCard.name}</p>
                     <p className="text-gray-400 text-xs">
                       ATK: {displayStat(cpuCard.atk)}
                     </p>
                     <p className="text-gray-400 text-xs">
                       DEF: {displayStat(cpuCard.def)}
                     </p>
-                  </div>
+                  </>
                 ) : (
                   <p className="text-gray-400">Esperando...</p>
                 )}
@@ -381,7 +334,7 @@ const Duel = () => {
         </div>
 
         {/* Mano de cartas del jugador */}
-        <div className="w-[300px]">
+        <div className="w-full lg:w-[300px]">
           <h2 className="text-white text-xl font-bold mb-4">
             Tus Cartas
             {!useInventoryCards && (
