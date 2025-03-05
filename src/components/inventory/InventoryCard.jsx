@@ -12,7 +12,7 @@ const InventoryCard = ({ item, onOpenPackage }) => {
     return (
         <div className="bg-[#282a36] p-4 rounded-lg transition-transform duration-300 hover:scale-105 hover:shadow-xl">
             <img
-                src={item.image}
+                src={item.image_url}
                 alt={item.name}
                 className="w-full h-48 object-contain mb-4 rounded"
             />

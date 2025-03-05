@@ -28,7 +28,28 @@ export const useInventory = () => {
             const data = await response.json();
             let cards = Object.values(data).flat();
 
-            // Filtrar para incluir solo cartas que tengan nivel
+            // Definir claves obligatorias con valores por defecto
+            const defaultCard = {
+                archetype: "Unknown",
+                atk: 0,
+                attribute: "Unknown",
+                def: 0,
+                desc: "No description available.",
+                image_url: "",
+                level: 0,
+                name: "Unknown",
+                race: "Unknown",
+                type: "Unknown"
+            };
+
+            // Normalizar todas las cartas para asegurarnos de que tienen las mismas claves
+            cards = cards.map(card => ({
+                ...defaultCard,
+                ...card,
+                image_url: card.image || card.image_url || "https://via.placeholder.com/150"
+            }));
+
+            // Filtrar para incluir solo cartas que tengan nivel definido
             cards = cards.filter(card => card.level !== undefined && card.level !== null);
 
             setAllCards(cards);
